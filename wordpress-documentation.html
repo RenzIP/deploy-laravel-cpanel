@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Lengkap Deploy Laravel di cPanel dengan GitHub CI/CD</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #2c3e50;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        .toc {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .toc li {
+            margin: 8px 0;
+        }
+        .toc a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #e74c3c;
+        }
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+        .highlight {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .checklist {
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .checklist ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .checklist li {
+            margin: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        .checklist li:before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+        }
+        .emoji {
+            font-size: 1.2em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .file-structure {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><span class="emoji">🚀</span> Panduan Lengkap Deploy Laravel di cPanel dengan GitHub CI/CD</h1>
+
+        <div class="toc">
+            <h2><span class="emoji">📋</span> Daftar Isi</h2>
+            <ul>
+                <li><a href="#prerequisites">1. Prerequisites</a></li>
+                <li><a href="#setup-github">2. Setup GitHub Repository</a></li>
+                <li><a href="#setup-github-actions">3. Setup GitHub Actions</a></li>
+                <li><a href="#setup-cpanel">4. Setup cPanel</a></li>
+                <li><a href="#konfigurasi-database">5. Konfigurasi Database</a></li>
+                <li><a href="#deploy-manual">6. Deploy Manual</a></li>
+                <li><a href="#setup-gambar">7. Setup Gambar dan Assets</a></li>
+                <li><a href="#troubleshooting">8. Troubleshooting</a></li>
+                <li><a href="#checklist">9. Checklist Deployment</a></li>
+            </ul>
+        </div>
+
+        <h2 id="prerequisites"><span class="emoji">🛠️</span> Prerequisites</h2>
+
+        <h3>Software yang Diperlukan:</h3>
+        <ul>
+            <li><strong>Git</strong> - untuk version control</li>
+            <li><strong>GitHub Account</strong> - untuk repository</li>
+            <li><strong>cPanel Hosting</strong> - untuk deployment</li>
+            <li><strong>Composer</strong> - untuk dependency management</li>
+            <li><strong>PHP 8.0+</strong> - untuk Laravel</li>
+        </ul>
+
+        <h3>Pengetahuan yang Diperlukan:</h3>
+        <ul>
+            <li>Dasar Git dan GitHub</li>
+            <li>Dasar cPanel</li>
+            <li>Dasar Laravel</li>
+            <li>Dasar YAML (untuk GitHub Actions)</li>
+        </ul>
+
+        <h2 id="setup-github"><span class="emoji">📦</span> Setup GitHub Repository</h2>
+
+        <h3>1. Inisialisasi Git Repository</h3>
+        <pre><code># Di folder project Laravel
+git init
+git add .
+git commit -m "Initial commit"</code></pre>
+
+        <h3>2. Push ke GitHub</h3>
+        <pre><code># Buat repository di GitHub
+git remote add origin https://github.com/username/laravel-project.git
+git branch -M main
+git push -u origin main</code></pre>
+
+        <h3>3. Struktur Repository</h3>
+        <div class="file-structure">
+laravel-project/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml
+├── app/
+├── config/
+├── database/
+├── resources/
+├── routes/
+├── storage/
+├── .env.example
+├── composer.json
+└── README.md</div>
+
+        <h2 id="setup-github-actions"><span class="emoji">⚙️</span> Setup GitHub Actions</h2>
+
+        <h3>1. Buat Workflow File</h3>
+        <p>Buat file <code>.github/workflows/deploy.yml</code>:</p>
+        <pre><code>name: Deploy to CPanel
+on:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+        inputs:
+            deployment_type:
+                description: "Deployment type"
+                required: true
+                default: "incremental"
+                type: choice
+                options:
+                    - incremental
+                    - full
+                    - force_all_php
+            force_upload:
+                description: "Force upload all PHP files (if auto-detection fails)"
+                required: false
+                default: "false"
+                type: choice
+                options:
+                    - "false"
+                    - "true"
+jobs:
+    FTP-Deploy-Action:
+        name: FTP-Deploy-Action
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 2 # Get last 2 commits for diff
+            # Skip build steps - just sync files directly
+
+            - name: Determine deployment mode
+              id: deploy_mode
+              run: |
+                  if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+                    DEPLOY_TYPE="${{ github.event.inputs.deployment_type }}"
+                  else
+                    DEPLOY_TYPE="incremental"
+                  fi
+
+                  echo "deployment_type=$DEPLOY_TYPE" >> $GITHUB_OUTPUT
+                  echo "🚀 Deployment mode: $DEPLOY_TYPE"
+
+            - name: Smart Server Sync
+              id: sync_deploy
+              if: steps.deploy_mode.outputs.deployment_type == 'incremental'
+              uses: nick-fields/retry@v2
+              with:
+                  timeout_minutes: 10
+                  max_attempts: 3
+                  retry_wait_seconds: 20
+                  command: |
+                      # Install lftp
+                      sudo apt-get update && sudo apt-get install -y lftp
+
+                      echo "🔍 Laravel Core Sync - Only sync important Laravel folders..."
+                      echo "📋 Will sync: app/, bootstrap/, config/, public/, resources/, routes/"
+                      echo "⚡ Excluding: vendor/, .htaccess, index.php (server files)"
+                      echo "✅ Safe deployment - only application code"
+
+                      # Use selective folder sync instead of full mirror
+                      lftp -e "
+                      set ftp:ssl-allow no;
+                      set ftp:passive-mode on;
+                      set net:timeout 60;
+                      set net:max-retries 3;
+                      set net:reconnect-interval-base 5;
+                      open ftp://${{ secrets.USERNAME }}:${{ secrets.PASSWORD }}@${{ secrets.SERVER }};
+                      cd /public_html/;
+                      lcd ./;
+
+                      echo 'Starting selective Laravel folder sync...';
+
+                      # Sync only important Laravel folders
+                      mirror --reverse --only-newer --verbose --parallel=2 app/ app/;
+                      mirror --reverse --only-newer --verbose --parallel=2 bootstrap/ bootstrap/;
+                      mirror --reverse --only-newer --verbose --parallel=2 config/ config/;
+                      mirror --reverse --only-newer --verbose --parallel=2 resources/ resources/;
+                      mirror --reverse --only-newer --verbose --parallel=2 routes/ routes/;
+
+                      # Sync bootstrap/cache with delete to clear cache files
+                      echo 'Syncing bootstrap/cache with delete to clear old cache...';
+                      mirror --reverse --delete --verbose --parallel=1 bootstrap/cache/ bootstrap/cache/;
+
+                      echo "✅ Laravel cleared old cache files completed!";
+
+                      # Sync public folder but exclude index.php and .htaccess
+                      mirror --reverse --only-newer --verbose --parallel=2 --exclude='index.php' --exclude='.htaccess' public/ public/;
+
+                      quit
+                      "
+
+                      echo "✅ Laravel core sync completed!"
+                      echo "🧹 Bootstrap cache cleared - server cache matches local cache"
+
+            - name: Deployment Summary
+              if: always()
+              run: |
+                  if [ "${{ steps.deploy_mode.outputs.deployment_type }}" = "full" ]; then
+                    echo "✅ Full deployment completed!"
+                    echo "🔄 Future pushes will only deploy changed files."
+                  elif [ "${{ steps.changes.outputs.has_changes }}" = "true" ]; then
+                    echo "✅ Selective deployment completed!"
+                    echo " Uploaded: $(echo '${{ steps.changes.outputs.changed_files }}' | wc -l) files"
+                    echo "🗑️ Deleted: $(echo '${{ steps.changes.outputs.deleted_files }}' | wc -l) files"
+                    echo "⚡ Only changed files were processed - no unnecessary transfers!"
+                  else
+                    echo "ℹ️ No deployment needed - no relevant files changed."
+                  fi
+                  echo "🎯 Server synchronized with Git repository."</code></pre>
+
+        <h3>2. Setup GitHub Secrets</h3>
+        <p>Di repository GitHub, buat secrets berikut:</p>
+        <ul>
+            <li><code>USERNAME</code> - Username FTP cPanel</li>
+            <li><code>PASSWORD</code> - Password FTP cPanel</li>
+            <li><code>SERVER</code> - Hostname FTP cPanel (contoh: ftp.yourdomain.com)</li>
+        </ul>
+
+        <h2 id="setup-cpanel"><span class="emoji">🌐</span> Setup cPanel</h2>
+
+        <h3>1. Buat Subdomain (Opsional)</h3>
+        <div class="highlight">
+            <strong>Subdomain:</strong> app.yourdomain.com<br>
+            <strong>Document Root:</strong> home/username/app.yourdomain.com
+        </div>
+
+        <h3>2. Struktur Folder di cPanel</h3>
+        <div class="file-structure">
+home/username/
+├── app.yourdomain.com/     ← Subdomain
+├── index.php
+├── .htaccess
+├── css/
+├── js/
+├── assets/
+├── app/
+├── resources/
+├── routes/
+├── config/
+├── storage/
+├── vendor/
+└── .env</div>
+
+        <h2 id="konfigurasi-database"><span class="emoji">🗄️</span> Konfigurasi Database</h2>
+
+        <h3>1. Buat Database di cPanel</h3>
+        <ol>
+            <li><strong>Buka cPanel</strong> → <strong>Manage My Database</strong></li>
+            <li><strong>Buat database</strong> baru</li>
+            <li><strong>Buat user</strong> database</li>
+            <li><strong>Assign user</strong> ke database</li>
+        </ol>
+
+        <h3>2. Import Database</h3>
+        <div class="highlight">
+            <strong>Via phpMyAdmin</strong><br>
+            Import file .sql dari local
+        </div>
+
+        <h3>3. Konfigurasi .env</h3>
+        <pre><code>APP_NAME="Your App Name"
+APP_ENV=production
+APP_KEY=base64:your-app-key-here
+APP_DEBUG=false
+APP_URL=https://app.yourdomain.com
+
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=your_database_name
+DB_USERNAME=your_database_user
+DB_PASSWORD=your_database_password
+
+CACHE_DRIVER=file
+SESSION_DRIVER=file
+QUEUE_CONNECTION=sync</code></pre>
+
+        <h2 id="deploy-manual"><span class="emoji">🔧</span> Deploy Manual (Backup)</h2>
+
+        <h3>1. Upload File via File Manager</h3>
+        <ol>
+            <li><strong>Buka File Manager</strong> di cPanel</li>
+            <li><strong>Upload semua file</strong> Laravel ke root domain</li>
+            <li><strong>Upload folder public/</strong> ke document root</li>
+        </ol>
+
+        <h3>2. Setup File Structure</h3>
+        <div class="file-structure">
+public_html/              ← Document root
+├── index.php            ← Dari public/index.php
+├── .htaccess           ← Dari public/.htaccess
+├── css/                ← Dari public/css/
+├── js/                 ← Dari public/js/
+├── assets/             ← Dari public/assets/
+├── storages/
+├── app/                ← Folder Laravel
+├── resources/
+├── routes/
+├── config/
+├── storage/
+├── vendor/
+└── .env</div>
+
+        <h3>3. Edit index.php untuk Root Domain</h3>
+        <pre><code>&lt;?php
+// Ubah path di public/index.php
+require __DIR__.'/../vendor/autoload.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';</code></pre>
+
+        <h2 id="troubleshooting"><span class="emoji">🔍</span> Troubleshooting</h2>
+
+        <h3>Error 500 - Internal Server Error</h3>
+        <div class="warning">
+            <strong>Penyebab:</strong> Permissions salah atau file .env tidak ada<br>
+            <strong>Solusi:</strong>
+        </div>
+        <pre><code>chmod 755 bootstrap/cache/
+chmod 644 .env</code></pre>
+
+        <h3>Database Connection Error</h3>
+        <div class="warning">
+            <strong>Penyebab:</strong> Konfigurasi database salah<br>
+            <strong>Solusi:</strong>
+        </div>
+        <ol>
+            <li>Cek credentials database di .env</li>
+            <li>Pastikan database dan user sudah dibuat</li>
+            <li>Test koneksi database</li>
+        </ol>
+
+        <h2 id="checklist"><span class="emoji">📝</span> Checklist Deployment</h2>
+
+        <div class="checklist">
+            <h3>✅ Pre-Deployment</h3>
+            <ul>
+                <li>Repository GitHub sudah setup</li>
+                <li>GitHub Actions workflow sudah dibuat</li>
+                <li>Database sudah dibuat di cPanel</li>
+                <li>.env sudah dikonfigurasi</li>
+            </ul>
+
+            <h3>✅ Deployment</h3>
+            <ul>
+                <li>File Laravel sudah terupload</li>
+                <li>App key sudah di-generate</li>
+            </ul>
+
+            <h3>✅ Post-Deployment</h3>
+            <ul>
+                <li>Website bisa diakses</li>
+                <li>Database terhubung</li>
+                <li>Admin panel bisa diakses</li>
+            </ul>
+        </div>
+
+        <h2><span class="emoji">🔄</span> Update dan Maintenance</h2>
+
+        <h3>Update via GitHub</h3>
+        <ol>
+            <li><strong>Push changes</strong> ke GitHub</li>
+            <li><strong>GitHub Actions</strong> akan otomatis deploy</li>
+            <li><strong>Monitor deployment</strong> di GitHub Actions tab</li>
+        </ol>
+
+        <h3>Manual Update</h3>
+        <ol>
+            <li><strong>Upload file</strong> yang diubah via File Manager</li>
+            <li><strong>Clear cache</strong> jika diperlukan</li>
+            <li><strong>Test functionality</strong></li>
+        </ol>
+
+        <h3>Backup</h3>
+        <ol>
+            <li><strong>Backup database</strong> via phpMyAdmin</li>
+            <li><strong>Backup file</strong> via File Manager</li>
+            <li><strong>Simpan backup</strong> di lokasi aman</li>
+        </ol>
+
+        <h2><span class="emoji">📚</span> Referensi</h2>
+        <ul>
+            <li><a href="https://laravel.com/docs" target="_blank" rel="noopener">Laravel Documentation</a></li>
+            <li><a href="https://docs.github.com/en/actions" target="_blank" rel="noopener">GitHub Actions Documentation</a></li>
+            <li><a href="https://docs.cpanel.net/" target="_blank" rel="noopener">cPanel Documentation</a></li>
+        </ul>
+
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid #ecf0f1;">
+
+        <div style="text-align: center; color: #7f8c8d; font-size: 0.9em;">
+            <p><strong>Last Updated:</strong> January 2025<br>
+            <strong>Version:</strong> 1.0<br>
+            <strong>Author:</strong> Bagas "Renz" Agung</p>
+        </div>
+    </div>
+</body>
+</html> 
